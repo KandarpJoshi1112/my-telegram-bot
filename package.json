@@ -10,5 +10,8 @@
     "telegraf": "^4.15.3",
     "@notionhq/client": "^2.2.3",
     "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": "nodejs18.x"
   }
 }
