@@ -2,5 +2,13 @@
   "name": "my-telegram-bot",
   "version": "1.0.0",
   "type": "module",
-  "dependencies": {}
+  "main": "api/telegram.js",
+  "scripts": {
+    "start": "node api/telegram.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.15.3",
+    "@notionhq/client": "^2.2.3",
+    "node-fetch": "^3.3.2"
+  }
 }
