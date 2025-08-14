@@ -1,1 +1,21 @@
+{
+  "name": "my-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot connected to Notion, Supabase, and HuggingFace for smart note-taking.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.5",
+    "@supabase/supabase-js": "^2.39.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
+    "telegraf": "^4.12.3",
+    "openai": "^4.0.1",
+    "langchain": "^0.0.189"
+  }
+}
 
