@@ -46,15 +46,36 @@ async function transcribeAudio(fileUrl) {
   return data?.text || '';
 }
 
-async function saveToNotion(category, content) {
+async function saveToNotion(content) {
+  if (!content || content.trim() === '') {
+    console.warn('No content to save to Notion.');
+    return;
+  }
+
   await notion.pages.create({
-    parent: { database_id: NOTION_DB },
+    parent: { database_id: process.env.NOTION_DATABASE_ID },
     properties: {
-      Title: { title: [{ text: { content: content.slice(0, 50) } }] },
-      Category: { select: { name: category } }
+      Name: {
+        title: [
+          {
+            text: { content: content.slice(0, 100) } // Truncate to 100 chars
+          }
+        ]
+      }
     },
     children: [
-      { object: 'block', type: 'paragraph', paragraph: { text: [{ type: 'text', text: { content } }] } }
+      {
+        object: 'block',
+        type: 'paragraph',
+        paragraph: {
+          rich_text: [
+            {
+              type: 'text',
+              text: { content }
+            }
+          ]
+        }
+      }
     ]
   });
 }
@@ -62,32 +83,21 @@ async function saveToNotion(category, content) {
 // ---------- BOT HANDLERS ----------
 bot.start((ctx) => ctx.reply('🚀 Bot is live! Send me a voice or text message.'));
 
-bot.on('voice', async (ctx) => {
+bot.on('text', async (ctx) => {
   try {
-    const file = await ctx.telegram.getFile(ctx.message.voice.file_id);
-    const fileUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_TOKEN}/${file.file_path}`;
-    const rawText = await transcribeAudio(fileUrl);
-    const refined = await refineText(rawText);
-    const category = await classifyText(refined);
-    await saveToNotion(category, refined);
-    ctx.reply(`✅ ${category} saved to Notion!`);
+    const message = ctx.message.text || '';
+    await saveToNotion(message);
+    await ctx.reply('Saved to Notion!');
   } catch (err) {
     console.error(err);
-    ctx.reply('❌ Error processing voice note.');
+    await ctx.reply('Error saving to Notion.');
   }
 });
 
-bot.on('text', async (ctx) => {
-  try {
-    const refined = await refineText(ctx.message.text);
-    const category = await classifyText(refined);
-    await saveToNotion(category, refined);
-    ctx.reply(`✅ ${category} saved to Notion!`);
-  } catch (err) {
-    console.error(err);
-    ctx.reply('❌ Error processing text.');
-  }
+bot.on('voice', async (ctx) => {
+  await ctx.reply('Got your voice note! (Not saving to Notion)');
 });
+
 
 // ---------- VERCEL HANDLER ----------
 export default async function handler(req, res) {
